@@ -1,0 +1,23 @@
+version: '3.3'
+services:
+  app:
+    build:
+      context: ./app
+    #image: rest-service:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/rest-service
+
+  db:
+    image: postgres:14.6
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rest-service
+    volumes:
+      - ./initdb/test.sql:/docker-entrypoint-initdb.d/test.sql
