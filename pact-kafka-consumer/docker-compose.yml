@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  pact-broker:
+    image: pactfoundation/pact-broker
+    ports:
+      - "9292:9292"
+    environment:
+      PACT_BROKER_DATABASE_ADAPTER: sqlite
+      PACT_BROKER_DATABASE_NAME: /tmp/pactbroker.db
+      PACT_BROKER_PUBLISH: true
+      PACT_BROKER_PUBLISH_WAIT: 5
+    volumes:
+      - pactbroker-data:/tmp
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: kafka
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@localhost:29093'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+
+volumes:
+  pactbroker-data:

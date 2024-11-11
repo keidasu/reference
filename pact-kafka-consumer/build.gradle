@@ -1,0 +1,67 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.5'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'au.com.dius.pact' version "4.6.11"
+}
+
+group = 'ru.gpb.tech'
+version = '1.0.0'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+sourceSets {
+	contractTest {
+		java.srcDir file("src/contractTest/java")
+		resources.srcDir file("src/contractTest/resources")
+		runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+		compileClasspath += sourceSets.main.compileClasspath + sourceSets.test.compileClasspath
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+task contractTest(type: Test) {
+	System.properties.each { k, v ->
+		systemProperty k, v
+	}
+	testClassesDirs = sourceSets.contractTest.output.classesDirs
+	classpath = sourceSets.contractTest.runtimeClasspath
+	useJUnitPlatform()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+
+	contractTestImplementation 'au.com.dius.pact.consumer:junit5:4.6.11'
+	contractTestImplementation 'org.assertj:assertj-core:3.26.3'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+pact {
+	publish {
+		pactBrokerUrl = "${PACT_BROKER_URL}"
+	}
+}

@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: pact-kafka-consumer
+  kafka:
+    bootstrap-servers: localhost:29092
+    consumer:
+      group-id: document_group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: ru.gpb.tech.pactkafkaconsumer.dto.CreateDocumentRequest
+
+server:
+  port: 8080

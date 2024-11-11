@@ -1,0 +1,96 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'io.qameta.allure'
+
+group 'ru.gazprombank.automation'
+version "${akitagpbVersion}"
+description = "Компонентные тесты для сервиса kafka-service"
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+buildscript {
+    repositories {
+        maven {
+            credentials {
+                username "${nexusUser}"
+                password "${nexusPassword}"
+            }
+            url "${nexusUrl}"
+        }
+    }
+
+    dependencies {
+        classpath "io.qameta.allure:allure-gradle:${allureGradleVersion}"
+        classpath "io.qameta.allure:allure-cucumber7-jvm:${allureVersion}"
+    }
+}
+
+repositories {
+    maven {
+        credentials {
+            username "${nexusUser}"
+            password "${nexusPassword}"
+        }
+        url "${nexusUrl}"
+    }
+}
+
+allure {
+    autoconfigure = true
+    version = "${allureVersion}"
+
+    useCucumber2JVM {
+        version = "${allureVersion}"
+    }
+}
+
+dependencies {
+    //akita-gpb
+    implementation "ru.gazprombank.automation:akita-gpb-api-module:${akitaGpbApiModuleVersion}"
+    implementation "ru.gazprombank.automation:akita-gpb-hooks-module:${akitaGpbHooksModuleVersion}"
+    implementation "ru.gazprombank.automation:akita-gpb-kafka-mq-module:${akitaGpbKafkaMqModuleVersion}"
+
+    //AssertJ
+    implementation group: 'org.assertj', name: 'assertj-core', version: '3.15.0'
+
+    //Lombok
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+}
+
+configurations {
+    testCompile
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+
+task cucumber() {
+    dependsOn assemble, testClasses
+
+    doLast {
+        javaexec {
+            System.properties.each { k, v ->
+                systemProperty k, v
+            }
+
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+
+            args = [
+                    '--threads', '1',
+                    '--plugin', 'pretty',
+                    '--plugin', 'io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm',
+                    '--glue', 'ru.gazprombank.automation.akitagpb',
+                    'src/test/resources'
+            ]
+            ignoreExitValue = true
+        }
+    }
+}

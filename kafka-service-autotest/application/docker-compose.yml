@@ -1,0 +1,45 @@
+version: '3.3'
+services:
+  app:
+    build:
+      context: ./app
+    #image: kafka-service:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+    environment:
+      SERVICE_PATHS_WALLET_URL: http://unimock:10020
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      FEATURES_WALLETINTEGRATIONENABLED: "true"
+
+  kafka:
+    image: apache/kafka:3.8.0
+    container_name: kafka
+    ports:
+      - "29092:29092"
+      - "29094:29094"
+      - "29093:29093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,EXTERNAL://0.0.0.0:29094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,EXTERNAL://localhost:29094
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+
+  unimock:
+    image: docker.dev.gazprombank.ru/ru/gpb/unimock/unimock:1.58.0
+    ports:
+      - 9021:8081
+      - 9020:10020
+    volumes:
+      - ./unimock/config:/app/config
+      - ./unimock/templates:/app/templates
+    entrypoint: [ "/bin/sh", "-c", "exec java -jar /app/unimock.jar -d ./config" ]
