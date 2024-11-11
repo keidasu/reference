@@ -1,0 +1,30 @@
+version: '3.3'
+services:
+  app:
+    build:
+      context: ./app
+    #image: rabbitmq-service:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - rabbitmq
+    environment:
+      SERVICE_PATHS_WALLET_URL: http://unimock:10020
+      SPRING_RABBITMQ_HOST: rabbitmq
+      FEATURES_WALLETINTEGRATIONENABLED: "true"
+
+  rabbitmq:
+    image: rabbitmq:3.10.7-management
+    ports:
+      - 15672:15672
+      - 5672:5672
+
+  unimock:
+    image: docker.dev.gazprombank.ru/ru/gpb/unimock/unimock:1.58.0
+    ports:
+      - 9021:8081
+      - 9020:10020
+    volumes:
+      - ./unimock/config:/app/config
+      - ./unimock/templates:/app/templates
+    entrypoint: [ "/bin/sh", "-c", "exec java -jar /app/unimock.jar -d ./config" ]

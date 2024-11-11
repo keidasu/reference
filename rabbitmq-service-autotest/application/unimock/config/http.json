@@ -1,0 +1,20 @@
+{
+  "mqconf": {
+    "busType": "http",
+    "host": "unimock",
+    "port": 10020
+  },
+  "Executors": [
+    {
+      "method": "POST",
+      "path": "/wallet/balance",
+      "defaultResponseTemplate": "rest-service/json/test.json",
+      "headers": [
+        {
+          "headerKey": "Content-Type",
+          "headerValue": "application/json"
+        }
+      ]
+    }
+  ]
+}
