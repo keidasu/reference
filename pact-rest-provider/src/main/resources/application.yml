@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: pact-rest-provider
+  datasource:
+    url: jdbc:postgresql://localhost:5432/providerdb
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: none
+

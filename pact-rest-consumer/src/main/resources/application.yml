@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: pact-rest-consumer
+gpb:
+  service-location:
+    pact-rest-provider:
+      url: http://localhost:8080

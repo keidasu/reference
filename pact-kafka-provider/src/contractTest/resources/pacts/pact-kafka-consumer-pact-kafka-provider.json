@@ -1,0 +1,182 @@
+{
+  "consumer": {
+    "name": "pact-kafka-consumer"
+  },
+  "interactions": [
+    {
+      "comments": {
+        "testname": "ru.gpb.tech.pactkafkaconsumer.DocumentConsumerPactTest.testCreateDocumentRequestPact(AsynchronousMessage)"
+      },
+      "contents": {
+        "content": {
+          "docData": {
+            "incomeList": [
+              {
+                "active": true,
+                "incomeSum": 100
+              }
+            ],
+            "taxRate": 100.0,
+            "year": 100
+          },
+          "id": 100,
+          "metaDoc": {
+            "appId": "e2490de5-5bd3-43d5-b7c4-526e33f71304",
+            "appSequence": 100
+          },
+          "userInfoDict": {
+            "exampleKey": {
+              "accNumber": 100,
+              "name": "string"
+            }
+          }
+        },
+        "contentType": "application/json",
+        "encoded": false
+      },
+      "description": "createDocumentRequest",
+      "generators": {
+        "body": {
+          "$.docData.incomeList[0].incomeSum": {
+            "max": 2147483647,
+            "min": 0,
+            "type": "RandomInt"
+          },
+          "$.docData.taxRate": {
+            "digits": 10,
+            "type": "RandomDecimal"
+          },
+          "$.docData.year": {
+            "max": 2147483647,
+            "min": 0,
+            "type": "RandomInt"
+          },
+          "$.id": {
+            "max": 2147483647,
+            "min": 0,
+            "type": "RandomInt"
+          },
+          "$.metaDoc.appId": {
+            "type": "Uuid"
+          },
+          "$.metaDoc.appSequence": {
+            "max": 2147483647,
+            "min": 0,
+            "type": "RandomInt"
+          },
+          "$.userInfoDict.*.accNumber": {
+            "max": 2147483647,
+            "min": 0,
+            "type": "RandomInt"
+          },
+          "$.userInfoDict.*.name": {
+            "size": 20,
+            "type": "RandomString"
+          }
+        }
+      },
+      "key": "f0dcd53f",
+      "matchingRules": {
+        "body": {
+          "$.docData.incomeList[0].active": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          },
+          "$.docData.incomeList[0].incomeSum": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "integer"
+              }
+            ]
+          },
+          "$.docData.taxRate": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "decimal"
+              }
+            ]
+          },
+          "$.docData.year": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "integer"
+              }
+            ]
+          },
+          "$.id": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "integer"
+              }
+            ]
+          },
+          "$.metaDoc.appId": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "regex",
+                "regex": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+              }
+            ]
+          },
+          "$.metaDoc.appSequence": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "integer"
+              }
+            ]
+          },
+          "$.userInfoDict": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "values"
+              }
+            ]
+          },
+          "$.userInfoDict.*.accNumber": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "integer"
+              }
+            ]
+          },
+          "$.userInfoDict.*.name": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          }
+        }
+      },
+      "metadata": {
+        "contentType": "application/json"
+      },
+      "pending": false,
+      "type": "Asynchronous/Messages"
+    }
+  ],
+  "metadata": {
+    "pact-jvm": {
+      "version": "4.6.11"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    }
+  },
+  "provider": {
+    "name": "pact-kafka-provider"
+  }
+}

@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  pact-broker:
+    image: pactfoundation/pact-broker
+    ports:
+      - "9292:9292"
+    environment:
+      PACT_BROKER_DATABASE_ADAPTER: sqlite
+      PACT_BROKER_DATABASE_NAME: /tmp/pactbroker.db
+      PACT_BROKER_PUBLISH: true
+      PACT_BROKER_PUBLISH_WAIT: 5
+    volumes:
+      - pactbroker-data:/tmp
+
+volumes:
+  pactbroker-data:

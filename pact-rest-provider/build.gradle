@@ -1,0 +1,71 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.2'
+    id 'io.spring.dependency-management' version '1.1.6'
+    id 'au.com.dius.pact' version "4.6.11"
+}
+
+group = 'ru.gpb.tech'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+sourceSets {
+    contractTest {
+        java.srcDir file("src/contractTest/java")
+        resources.srcDir file("src/contractTest/resources")
+        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+        compileClasspath += sourceSets.main.compileClasspath + sourceSets.test.compileClasspath
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+task contractTest(type: Test) {
+    System.properties.each { k, v ->
+        systemProperty k, v
+    }
+    testClassesDirs = sourceSets.contractTest.output.classesDirs
+    classpath = sourceSets.contractTest.runtimeClasspath
+    useJUnitPlatform()
+    systemProperty 'pactbroker.url', System.getProperty('pactbroker.url',"${PACT_BROKER_URL}")
+    systemProperty 'pact.verifier.publishResults', 'true'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.postgresql:postgresql'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    contractTestImplementation 'au.com.dius.pact.provider:junit5:4.6.11'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks {
+    processContractTestResources {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+}
